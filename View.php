@@ -58,6 +58,9 @@ class View extends \yii\web\View
     /** @var bool do I need to compress the result html page. */
     public $compress_output = false;
 
+    /** @var string the hash method sha or time. */
+    public $hashMethod = 'sha';
+    
     /**
      * @var array options for compressing output result
      *   * extra - use more compact algorithm
@@ -496,9 +499,13 @@ class View extends \yii\web\View
         $result = '';
         foreach ($files as $file => $html) {
             $path = $this->getAbsoluteFilePath($file);
-
+            
             if ($this->thisFileNeedMinify($file, $html) && file_exists($path)) {
-                $result .= sha1_file($path);
+                if ($this->hashMethod === 'time') {
+                    $result .= $path . '?' . filemtime($path);
+                } else {
+                    $result .= sha1_file($path);
+                }
             }
         }
 
